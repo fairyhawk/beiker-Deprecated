@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+	<import resource="daemon-applicationContext.xml" />
+	
+	<!-- 交易对外提供的Hessian Service Gate Way  -->
+	<bean id="trxHessianServiceGateWay" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="target">
+			<bean class="com.beike.biz.service.hessian.impl.TrxHessianServiceGateWayImpl">
+			    	<property name="trxHessianService" ref="trxHessianService"></property>
+					<property name="trxSoaService" ref="trxSoaService"></property>
+					<property name="payLimitService" ref="payLimitService"></property>
+					<property name="shopCartService" ref="shopCartService"></property>
+					<property name="vipHessianService" ref="vipHessianService"></property>
+					
+			</bean>
+		</property>
+		<property name="proxyInterfaces">
+			<value>
+				com.beike.biz.service.hessian.TrxHessianServiceGateWay
+			</value>
+		</property>
+	
+	</bean>
+	
+	<!-- 交易Hessian Service -->
+	<bean id="trxHessianService" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="target">
+			<bean class="com.beike.biz.service.hessian.impl.TrxHessianServiceImpl">
+				<property name="bizProcessFactory" ref="bizProcessFactory"></property>
+				<property name="accountService" ref="accountService"></property>
+				<property name="rebRecordService" ref="rebRecordService"></property>
+				<property name="trxOrderService" ref="trxOrderService"></property>
+				<property name="refundService" ref="refundService"></property>
+				<property name="voucherService" ref="voucherService"></property>
+				<property name="paymentInfoGeneratorFactory" ref="paymentInfoGeneratorFactory"></property>
+				<property name="payLimitService" ref="payLimitService"></property>
+				<property name="vmAccountService" ref="vmAccountService"></property>
+				<property name="cardService" ref="cardService"></property>
+				<property name="discountCouponService" ref="discountCouponService"/>
+				<property name="notifyRecordBizService" ref="notifyRecordBizService"></property>
+				<property name="accountHistoryService" ref="accountHistoryService"></property>
+				<property name="orderProcessService" ref="orderProcessService"></property>
+				<property name="shopCartService" ref="shopCartService"></property>
+				<property name="trxorderGoodsService" ref="trxorderGoodsService"></property>
+				<property name="partnerVoucherServiceFactory" ref="partnerVoucherServiceFactory"></property>
+				<property name="partnerCommonService" ref="partnerCommonService"></property>
+				<property name="trxSoaService" ref="trxSoaService"></property>
+				<property name="trxLogService" ref="trxLogService"></property>
+				<property name="subAccountService" ref="subAccountService"></property>
+				<property name="trxCouponService" ref="trxCouponService"></property>
+				<property name="accountNotifyService" ref="accountNotifyService"></property>
+				<property name="guestSettleService" ref="guestSettleService"></property>
+			</bean>
+		</property>
+		<property name="proxyInterfaces">
+			<value>
+				com.beike.biz.service.hessian.TrxHessianService
+			</value>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>dataSourceInterceptor</value>
+				<value>transactionInterceptor</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="bizPaymentServiceFacroty" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="target">
+			<bean class="com.beike.biz.service.trx.BizPaymentServiceFactory">
+				<property name="serviceMap">
+					<map>
+						<entry key="PAYCASH">
+							<ref bean="cashPayPaymentService"></ref>
+						</entry>
+						<entry key="ACTVC">
+							<ref bean="actPayPaymentService"></ref>
+						</entry>
+						<entry key="ACTCASH">
+							<ref bean="actPayPaymentService"></ref>
+						</entry>
+					</map>
+				</property>
+			</bean>
+		</property>
+
+		<property name="interceptorNames">
+			<list>
+				<value>dataSourceInterceptor</value>
+				<value>transactionInterceptor</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="bizProcessFactory" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="target">
+			<bean class="com.beike.biz.service.trx.BizProcessFactory">
+				<property name="serviceMap">
+					<map>
+						<entry key="SALES">
+							<ref bean="orderProcessService"></ref>
+						</entry>
+						<entry key="REBATE">
+							<ref bean="rebateProcessService"></ref>
+						</entry>
+					</map>
+				</property>
+			</bean>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>dataSourceInterceptor</value>
+				<value>transactionInterceptor</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="paymentInfoGeneratorFactory" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="target">
+			<bean class="com.beike.biz.service.trx.PaymentInfoGeneratorFactory">
+				<property name="serviceMap">
+					<map>
+						<entry key="YEEPAY">
+							<ref bean="paymentInfoGeneratorYeepayService"></ref>
+						</entry>
+						<entry key="ALIPAY">
+							<ref bean="paymentInfoGeneratorAlipayService"></ref>
+						</entry>
+						<entry key="UPOP">
+							<ref bean="paymentInfoGeneratorUpopService"></ref>
+						</entry>
+						<entry key="ALIPAY_SECURE"><!-- 支付宝安全支付 -->
+							<ref bean="paymentInfoGeneratorAlipaySecureService"></ref>
+						</entry>
+						<entry key="ALIPAY_WAP"><!-- 支付宝WAP支付 -->
+							<ref bean="paymentInfoGeneratorAlipayWapService"></ref>
+						</entry>
+					</map>
+				</property>
+			</bean>
+		</property>
+
+		<property name="interceptorNames">
+			<list>
+				<value>dataSourceInterceptor</value>
+				<value>transactionInterceptor</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="guidGeneratorService" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="target">
+			<bean class="com.beike.common.guid.GuidGeneratorImpl"
+				init-method="init" scope="singleton">
+			</bean>
+		</property>
+		<property name="proxyInterfaces">
+			<value>com.beike.common.guid.GuidGenerator</value>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>dataSourceInterceptor</value>
+				<value>transactionInterceptor</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="refundService" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="target">
+			<bean class="com.beike.core.service.trx.impl.RefundServiceImpl">
+			</bean>
+		</property>
+
+		<property name="proxyInterfaces">
+			<value>com.beike.core.service.trx.RefundService</value>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>dataSourceInterceptor</value>
+				<value>transactionInterceptor</value>
+			</list>
+		</property>
+	</bean>
+
+
+
+
+
+
+
+</beans>

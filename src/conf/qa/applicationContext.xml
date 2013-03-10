@@ -1,0 +1,367 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+	<context:component-scan base-package="com.beike"> 
+		<context:exclude-filter type="annotation"	expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+	<!-- 配置文件 -->
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:/jdbc-mysql.properties</value>
+			</list>
+		</property>
+	</bean>
+	<!-- 动态数据源的父类,其中配置的参数为子数据库的default值 -->
+	<bean id="parentDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close" abstract="true">
+		<property name="driverClass">
+			<value>${jdbc.driverClassName}</value>
+		</property>
+		<property name="jdbcUrl">
+			<value>${jdbc.url}</value>
+		</property>
+		<property name="user">
+			<value>${jdbc.username}</value>
+		</property>
+		<property name="password">
+			<value>${jdbc.password}</value>
+		</property>
+		<property name="maxPoolSize">
+			<value>${jdbc.maxPoolSize}</value>
+		</property>
+		<property name="minPoolSize">
+			<value>${jdbc.minPoolSize}</value>
+		</property>
+		<property name="initialPoolSize">
+			<value>${jdbc.initialPoolSize}</value>
+		</property>
+		<property name="idleConnectionTestPeriod">
+			<value>${jdbc.idleConnectionTestPeriod}
+			</value>
+		</property>
+		<property name="maxIdleTime">
+			<value>${jdbc.maxIdleTime}</value>
+		</property>
+	</bean>
+
+	<!-- 子数据源,写操作主库,无需修改配置参数 -->
+	<bean id="write" parent="parentDataSource"></bean>
+
+	<!-- 子数据源,只读数据源热read02,只需对url,user,password重新赋值 -->
+	<bean id="read02" destroy-method="close" parent="parentDataSource">
+		<property name="jdbcUrl">
+			<value>${jdbc.read.db02.url}</value>
+		</property>
+		<property name="user">
+			<value>${jdbc.read.db02.username}</value>
+		</property>
+		<property name="password">
+			<value>${jdbc.read.db02.password}</value>
+		</property>
+	</bean>
+
+	<!-- 子数据源,只读数据源热read03,只需对url,user,password重新赋值 -->
+	<bean id="read03" destroy-method="close" parent="parentDataSource">
+		<property name="jdbcUrl">
+			<value>${jdbc.read.db03.url}</value>
+		</property>
+		<property name="user">
+			<value>${jdbc.read.db03.username}</value>
+		</property>
+		<property name="password">
+			<value>${jdbc.read.db03.password}</value>
+		</property>
+	</bean>
+
+	<!-- 子数据源,只读数据源热read04,只需对url,user,password重新赋值 -->
+	<bean id="read04" destroy-method="close" parent="parentDataSource">
+		<property name="jdbcUrl">
+			<value>${jdbc.read.db04.url}</value>
+		</property>
+		<property name="user">
+			<value>${jdbc.read.db04.username}</value>
+		</property>
+		<property name="password">
+			<value>${jdbc.read.db04.password}</value>
+		</property>
+	</bean>
+
+	<bean id="read05" destroy-method="close" parent="parentDataSource">
+		<property name="jdbcUrl">
+			<value>${jdbc.read.db05.url}</value>
+		</property>
+		<property name="user">
+			<value>${jdbc.read.db05.username}</value>
+		</property>
+		<property name="password">
+			<value>${jdbc.read.db05.password}</value>
+		</property>
+	</bean>
+	
+	<bean id="read06" destroy-method="close" parent="parentDataSource">
+		<property name="jdbcUrl">
+			<value>${jdbc.read.db06.url}</value>
+		</property>
+		<property name="user">
+			<value>${jdbc.read.db06.username}</value>
+		</property>
+		<property name="password">
+			<value>${jdbc.read.db06.password}</value>
+		</property>
+	</bean>
+	
+	<!-- 动态数据源 -->
+	<bean id="dataSource" class="com.beike.ds.DataSourceRouter">
+		<property name="targetDataSources">
+			<map key-type="java.lang.String">
+				<entry key="write" value-ref="write" />
+				<entry key="read02" value-ref="read02" />
+				<entry key="read03" value-ref="read03" />
+				<entry key="read04" value-ref="read04" />
+				<entry key="read05" value-ref="read05" />
+				<entry key="read06" value-ref="read06" />
+			</map>
+		</property>
+		<property name="defaultTargetDataSource" ref="write" />
+		<property name="dataSourceKey">
+			<ref local="dataSourceKey" />
+		</property>
+	</bean>
+
+	<!-- 读写管理 -->
+	<bean id="dataSourceKey" class="com.beike.ds.DataSourceKeyImpl">
+		<property name="readDateSourceMap">
+			<map key-type="java.lang.String">
+				<entry key="read02" value="read02" />
+				<entry key="read03" value="read03" />
+				<entry key="read04" value="read04" />
+				<entry key="read05" value="read05" />
+				<entry key="read06" value="read06" />
+			</map>
+		</property>
+		<property name="writeKey">
+			<value>write</value>
+		</property>
+	</bean>
+	<!-- 事务配置 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+
+	<!-- 事务管理拦截器 -->
+	<bean id="transactionInterceptor"
+		class="org.springframework.transaction.interceptor.TransactionInterceptor">
+		<property name="transactionManager" ref="transactionManager" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="query*">PROPAGATION_SUPPORTS,-Exception</prop>
+				<prop key="is*">PROPAGATION_SUPPORTS,-Exception</prop>
+				<prop key="find*">PROPAGATION_SUPPORTS,-Exception</prop>
+				<prop key="get*">PROPAGATION_SUPPORTS,-Exception</prop>
+				<prop key="load*">PROPAGATION_SUPPORTS,-Exception</prop>
+				<prop key="count*">PROPAGATION_SUPPORTS,-Exception</prop>
+				<prop key="list*">PROPAGATION_SUPPORTS,-Exception</prop>
+				<prop key="check*">PROPAGATION_SUPPORTS,-Exception</prop>
+				<prop key="save*">PROPAGATION_REQUIRED,-Exception</prop>
+				<prop key="del*">PROPAGATION_REQUIRED,-Exception</prop>
+				<prop key="add*">PROPAGATION_REQUIRED,-Exception</prop>
+				<prop key="edit*">PROPAGATION_REQUIRED,-Exception</prop>
+				<prop key="activation*">PROPAGATION_REQUIRED,-Exception</prop>
+				<prop key="destory*">PROPAGATION_REQUIRED,-Exception</prop>
+				<prop key="upd*">PROPAGATION_REQUIRED,-Exception</prop>
+				<prop key="rem*">PROPAGATION_REQUIRED,-Exception</prop>
+				<prop key="appendShopItem">PROPAGATION_REQUIRED,-Exception</prop>
+				<prop key="participantEmail">PROPAGATION_REQUIRED,-Exception</prop>
+				<prop key="remove*">PROPAGATION_REQUIRED,-Exception</prop>
+				<prop key="getPrizeInfo*">PROPAGATION_REQUIRED,-Exception</prop>
+				<prop key="reBooking">PROPAGATION_REQUIRED,-Exception</prop>
+				<!--序列号发生器，新起事务add by wenhua.cheng-->
+				<prop key="gain*">PROPAGATION_REQUIRES_NEW,-Exception</prop>	
+				<!--凭证预取add by wenhua.cheng-->
+				<prop key="preFetchVoucher*">PROPAGATION_REQUIRED,-Exception</prop>
+				<!--商品订单号预取  add by wenhua.cheng-->
+				<prop key="createTrxGoodsSn*">PROPAGATION_REQUIRES_NEW,-Exception</prop>
+				<prop key="process*">PROPAGATION_REQUIRED,-Exception</prop>
+				<prop key="complete*">PROPAGATION_REQUIRED,-Exception</prop>
+				<prop key="limitLottery*">PROPAGATION_REQUIRED,-Exception</prop>
+				<prop key="process*">PROPAGATION_REQUIRED,-Exception</prop>
+				<prop key="create*">PROPAGATION_REQUIRED,-Exception</prop>
+				<!--校验凭证 add by wenhua.cheng-->
+				<prop key="validate*">PROPAGATION_REQUIRED,-Exception</prop>
+				<!--重发验证码，写操作历史 add by wenhua.cheng-->
+				<prop key="reSend*">PROPAGATION_REQUIRED,-Exception</prop>
+				<prop key="sendVoucher*">PROPAGATION_REQUIRED,-Exception</prop>
+				<!--激活凭证（模块解耦）add by wenhua.cheng-->
+				<prop key="active*">PROPAGATION_REQUIRED,-Exception</prop>
+			   
+				<prop key="rebate*">PROPAGATION_REQUIRED,-Exception</prop><!-- 返现 -->
+				<prop key="topup*">PROPAGATION_REQUIRED,-Exception</prop><!-- 千品币充值 -->
+				
+				<!--结算冻结 add by wenhua.cheng-->	
+				<prop key="freeze*">PROPAGATION_REQUIRED,-Exception</prop>
+					<!--回调后的账户操作相关，新起事务add by wenhua.cheng.增加乐观锁后，变更为需要事务。-->
+				<prop key="achieve*">PROPAGATION_REQUIRED,-Exception</prop>
+			
+
+				<prop key="pursue*">PROPAGATION_REQUIRED,-Exception</prop>	<!--虚拟款项追加入口方法add by wenhua.cheng -->
+				<prop key="dispatch*">PROPAGATION_REQUIRED,-Exception</prop>	<!--虚拟款项下发入口方法add by wenhua.cheng -->
+				<prop key="cancel*">PROPAGATION_REQUIRED,-Exception</prop>
+				<prop key="*">PROPAGATION_SUPPORTS,-Exception</prop>
+
+			</props>
+		</property>
+	</bean>
+
+	<!--交易模块业务层事务拦截器：注解性事务(方法命名避开通用拦截器) add by wh.cheng-->
+	<bean id="trx.transactionInterceptor"
+		class="org.springframework.transaction.interceptor.TransactionInterceptor">
+		<property name="transactionManager" ref="transactionManager" />
+		<property name="transactionAttributeSource">
+			<bean
+				class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource" />
+		</property>
+	</bean>
+
+
+	<!-- 动态数据源拦截器 -->
+	<bean id="dataSourceInterceptor" class="com.beike.ds.DataSourceInterceptor">
+		<property name="attributes">
+			<props>
+				<prop key="query*">read</prop>
+				<prop key="is*">read</prop>
+				<prop key="find*">read</prop>
+				<prop key="get*">read</prop>
+				<prop key="load*">read</prop>
+				<prop key="count*">read</prop>
+				<prop key="list*">read</prop>
+				<prop key="check*">read</prop>
+				<prop key="save*">write</prop>
+				<prop key="upd*">write</prop>
+				<prop key="del*">write</prop>
+				<prop key="add*">write</prop>
+				<prop key="edit*">write</prop>
+				<prop key="gain*">write</prop>
+				<prop key="destory*">write</prop>
+				<prop key="process*">write</prop>
+				<prop key="complate*">write</prop>
+				<prop key="achieve*">write</prop>
+				<prop key="create*">write</prop>
+				<prop key="activation*">write</prop>
+				<prop key="validate*">write</prop>
+				<prop key="reSend*">write</prop>
+				<prop key="active*">write</prop>
+				<prop key="rebate*">write</prop>
+				<prop key="freeze*">write</prop>
+				<prop key="rem*">write</prop>
+				<prop key="appendShopItem">write</prop>
+				<prop key="remove*">write</prop>
+				<prop key="participantEmail*">write</prop>
+				<prop key="getPrizeInfo*">write</prop>
+				<prop key="sendVoucher*">write</prop>
+				<prop key="dispatch*">write</prop>
+				<prop key="preFetch*">write</prop>
+				<prop key="pursue*">write</prop>
+				<prop key="cancel*">write</prop>
+				<prop key="topup*">write</prop>
+				<prop key="reBooking">write</prop>
+				<!--主库查询。不走事务，减少事务粒度，交易相关 add by wenhua.cheng-->
+				<prop key="preQryInWtDB*">write</prop>
+				<prop key="*">read</prop>
+			</props>
+		</property>
+		<property name="dataSourceKey">
+			<ref bean="dataSourceKey" />
+		</property>
+	</bean>
+
+	<!-- 根据Name匹配拦截器 -->
+	<bean
+		class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+		<property name="beanNames">
+			<list>
+				<value>*Service</value>
+			</list>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<!-- 指定获取数据源的Interceptor -->
+				<value>dataSourceInterceptor</value>
+				<!-- 事务管理的Interceptor -->
+				<value>transactionInterceptor</value>
+				<!-- 交易模块业务层事务拦截器：注解性事务-若service没有被覆盖，则用XML配置事务 add by wh.cheng -->
+				<!-- <value>trx.transactionInterceptor</value>-->
+			</list>
+		</property>
+	</bean>
+
+	<!-- 网站客户端配置交易Hessian远程接口 add by wenhua.cheng-->
+	<bean id="webClient.trxHessianServiceGateWay"
+		class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
+		<property name="serviceInterface"
+			value="com.beike.action.pay.hessianclient.TrxHessianServiceGateWay"></property>
+		<property name="serviceUrl">
+			<value>http://192.168.172.24/hessian/trxHessianServiceGateWay</value>
+		</property>
+		<property name="readTimeout">
+			<value>100000</value>
+		</property>
+		<!-- Hessian 权限认证 -->
+		<property name="proxyFactory">
+			<bean class="com.beike.action.pay.hessianclient.ClientHessianProxyFactory" />
+		</property>
+	</bean>
+
+	<!-- wap配置交易Hessian远程接口 add by lvjianxiong-->
+	<bean id="wapClient.trxHessianServiceGateWay"
+		class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
+		<property name="serviceInterface"
+			value="com.beike.action.pay.hessianclient.TrxHessianServiceGateWay"></property>
+		<property name="serviceUrl">
+			<value>http://192.168.172.24/hessian/trxHessianServiceGateWay</value>
+		</property>
+		<property name="readTimeout">
+			<value>100000</value>
+		</property>
+		<!-- Hessian 权限认证 -->
+		<property name="proxyFactory">
+			<bean class="com.beike.action.pay.hessianclient.ClientHessianProxyFactory" />
+		</property>
+	</bean>
+
+
+	<bean name="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="mail.qianpin.com" />
+		<property name="defaultEncoding" value="UTF-8"></property>
+		<property name="username" value="noreply@qianpin.com"></property>
+		<property name="password" value="1qazXSW@"></property>
+		<property name="javaMailProperties">
+			<map>
+				<entry key="mail.smtp.auth" value="true" />
+			</map>
+		</property>
+	</bean>
+
+    <!-- 财务系统  Hessian接口add by liuqinggang -->  
+     <bean id="financeClient.hessianServiceGateWay"  
+            class="org.springframework.remoting.caucho.HessianProxyFactoryBean">  
+            <property name="serviceInterface"  
+                value="com.beike.action.pay.hessianclient.FinanceHessianServiceGateway"></property>  
+            <property name="serviceUrl">  
+                <value>http://192.168.172.24/beiker_finance/hessian/financeHessianServiceGateWay</value>  
+            </property>  
+            <property name="readTimeout">  
+                <value>100000</value>  
+            </property>  
+            <!-- Hessian 权限认证 -->  
+            <property name="proxyFactory">  
+                <bean class="com.beike.action.pay.hessianclient.ClientHessianProxyFactory" />  
+            </property>  
+      </bean>  
+
+
+</beans>

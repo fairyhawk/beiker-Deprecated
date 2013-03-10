@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+    http://www.springframework.org/schema/context 
+    http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+
+	<!-- ①：对web包中的所有类进行扫描，以完成Bean创建和自动依赖注入的功能 -->
+	<context:component-scan base-package="com.beike">
+		<context:include-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Service" />
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Repository" />
+	</context:component-scan>
+
+	<!-- ②：启动Spring MVC的注解功能，完成请求和注解POJO的映射 -->
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
+
+		<property name="interceptors">
+			<list>
+				<ref bean="userRegistInterceptor" />
+				<ref bean="userLoginInterceptor" />
+				<ref bean="trxInterceptor" />
+				<ref bean="shopcartInterceptor"/>
+				<ref bean="statisticsInterceptor"/>
+			</list>
+		</property>
+
+	</bean>
+
+	<!-- ③：对模型视图名称的解析，即在模型视图名称添加前后缀 -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+		p:prefix="/jsp/" p:suffix=".jsp" />
+
+	<!--④：用户拦截器 -->
+	<bean id="baseInterceptor" abstract="true"
+		class="com.beike.interceptors.BaseBeikeInterceptor"></bean>
+	
+	
+	<!-- 数据统计拦截器 -->
+	<bean id="statisticsInterceptor" parent="baseInterceptor" class="com.beike.interceptors.StatisticsInterceptor">
+		<property name="path">
+			<list>
+				<!-- 配置拦截路径 -->
+				<value>/goods/showGoodDetail.do</value>
+				<value>/shopcart/shopcart.do</value>
+				<value>/pay/paySuccess.do</value>
+				<value>/goods/searchGoodsByProperty.do</value>
+				<value>/brand/showMerchant.do</value>
+				<value>/search/searchGoods.do</value>
+				<value>/forward.do</value>
+				<value>/card/queryQianpinCardInfo.do</value>
+			</list>
+		</property>
+	</bean>
+	
+
+	<!--用户注册拦截器 -->
+	<bean id="userRegistInterceptor" parent="baseInterceptor"
+		class="com.beike.interceptors.UserRegistInterceptor">
+		<property name="path">
+			<list>
+				<!-- 配置拦截路径 -->
+				<value>/user/userRegist.do</value>
+			</list>
+		</property>
+	</bean>
+	<!--用户登录拦截器 -->
+	<bean id="userLoginInterceptor" parent="baseInterceptor"
+		class="com.beike.interceptors.UserLoginInterceptor">
+		<property name="path">
+			<list>
+				<!-- 配置拦截路径 -->
+				<value>/user/userLogin.do</value>
+			</list>
+		</property>
+	</bean>
+
+<!-- 购物车拦截器 -->
+   <bean id="shopcartInterceptor" class="com.beike.interceptors.ShopCartCheck" parent="baseInterceptor" >
+        <property name="path">
+           <list>
+              <value>/user/userLogin.do</value>
+           </list>
+        </property>
+   </bean>
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver"
+		p:defaultEncoding="utf-8">
+		<!-- 最大允许上传文件大小:30K -->
+		<!-- <property name="maxUploadSize" value="30720" /> -->
+	</bean>
+
+
+	<!--交易重复提交拦截器 -->
+	<bean id="trxInterceptor" parent="baseInterceptor"
+		class="com.beike.common.interceptor.trx.DenyDuplicateFormSubmitInterceptor">
+		<property name="path">
+			<list>
+				<!-- 配置拦截路径 -->
+				<value>/pay/goToPay.do</value>
+
+			</list>
+		</property>
+	</bean>
+
+</beans>

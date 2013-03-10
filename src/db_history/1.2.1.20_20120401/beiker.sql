@@ -1,0 +1,3 @@
+alter table beiker_voucher  add  is_prefetch tinyint(4) unsigned NOT NULL DEFAULT '0' COMMENT '是否被预取.0:未被预取;1：被预取' after voucher_status,add prefetch_date timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '预取时间' after voucher_status;
+
+INSERT INTO `beiker_smstemplate`(smstitle,smscontent,smstype) VALUES ( 'VOUCHER_PREFETCH_ALTER_SMS_TEMPLATE', '凭证预取报警：{0},请立即处理。', 'VOUCHER_PREFETCH_ALTER_SMS_TEMPLATE');

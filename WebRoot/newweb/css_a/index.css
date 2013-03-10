@@ -1,0 +1,99 @@
+@charset "utf-8";
+/* CSS Document */
+
+.index_main{width:1000px;}
+.index_main li.index_left{width:190px;float:left;}
+.index_main li.index_center{width:610px;float:left;padding-top:10px;}
+.index_main li.index_right{width:200px;float:left;}
+.index_main li.banner_1000{width:1000px;float:left;}
+
+
+
+.index_jingxuan{width:590px;height:14px;background:url(../images_a/qianpin_ico.png) no-repeat;text-align:right;margin:12px 0 9px 0;}
+.jingxuan{width:600px;}
+.jingxuan .jx_1{float:left;margin-right:15px;}
+.jingxuan .jx_2{float:left;}
+.jingxuan a{display:block;width:188px;height:137px;text-decoration:none;border:1px solid #ededed;}
+.jingxuan a:hover{display:block;width:188px;height:137px;text-decoration:none;border:1px solid #0099cc;}
+
+
+
+.index_login{width:183px;background:url(../images_a/bg_02.jpg) no-repeat 0 38px;padding:10px 8px 0 9px;}
+.index_login li{width:183px;height:34px;line-height:22px;}
+
+.index_login_success{width:200px;height:68px;padding-top:10px;line-height:30px;color:#999999;}
+.index_login_success li.su_1{width:188px;height:30px;float:left;border-bottom:1px solid #ededed;padding:0 6px;}
+.index_login_success li.su_2{width:188px;height:37px;float:left;padding:0 6px;}
+
+
+
+
+
+.index_news{width:178px;border:1px solid #ededed;background:#f6f6f6;padding:10px;}
+.index_news dt{width:56px;background:url(../images_a/qianpin_ico.png) no-repeat 0 -30px;}
+.index_news dt a{width:56px;height:14px;display:block;overflow:hidden;text-indent:-10000em;}
+.index_news dd{width:178px;line-height:22px;margin-top:4px;}
+.index_news dd a{width:178px;height:22px;display:block;overflow:hidden;color:#999999;}
+.index_news dd a:hover{width:178px;height:22px;display:block;overflow:hidden;color:#0099cc;}
+
+
+
+.qianpin_commitment{width:200px;}
+.qianpin_commitment dt{width:200px;background:url(../images_a/qianpin_ico.png) no-repeat 0px -60px;}
+.qianpin_commitment dt a{width:77px;height:14px;display:block;overflow:hidden;text-indent:-10000em;}
+
+.qianpin_commitment dd{width:192px;height:180px;border:1px solid #ededed;background:url(../images_a/bg_gif_1.gif) no-repeat 3px 3px;padding:3px;}
+.qianpin_commitment dd a{width:129px;height:26px;padding:34px 0 0 63px;display:block;color:#999999;}
+.qianpin_commitment dd a:hover{width:129px;height:26px;padding:34px 0 0 63px;display:block;color:#0099cc; text-decoration:none;}
+
+
+.index_product{width:1000px;float:left;margin-top:20px;}
+.index_product dt{width:990px;height:24px;border-bottom:1px solid #e7e5e6;line-height:20px;text-align:right;padding-right:10px;}
+.index_product dt.floor_1{background:url(../images_a/qianpin_ico.png) no-repeat 10px -385px;}
+.index_product dt.floor_2{background:url(../images_a/qianpin_ico.png) no-repeat 10px -432px;}
+.index_product dt.floor_3{background:url(../images_a/qianpin_ico.png) no-repeat 10px -480px;}
+.index_product dt.floor_4{background:url(../images_a/qianpin_ico.png) no-repeat 10px -525px;}
+
+.index_product dd.left_pic{width:180px;float:left;height:243px;background:url(../images_a/bg_gif_2.gif) no-repeat;}
+.index_product dd.right_product{width:817px;float:left;border-top:9px solid #f3f3f3;padding:15px 0 0 3px;}
+
+.index_product dd.left_pic ul{width:160px;padding:2px 0 0 10px;}
+.index_product dd.left_pic ul li{width:160px;float:left;border-bottom:1px solid #e7e5e6;background:url(../images_a/qianpin_nav.png) no-repeat -3px -347px;}
+.index_product dd.left_pic ul li.none_line{width:160px;border-bottom:none;}
+.index_product dd.left_pic ul li img {opacity:1;filter:Alpha(Opacity=100);}
+.index_product dd.left_pic ul li a:hover img {opacity:0.7;filter:Alpha(Opacity=70);}
+
+
+
+
+
+
+.index_product_list{width:182px;float:left;border-right:1px dotted #dddddd;padding:0 11px;}
+.index_product_list li.list_photo{width:182px;float:left;margin-bottom:5px;}
+.index_product_list li.list_photo img{border:1px solid #ededed;}
+.index_product_list li.list_name{width:172px;float:left;padding:0 5px;line-height:18px;height:36px;margin-bottom:4px;overflow:hidden;}
+.index_product_list li.list_price{width:174px;float:left;height:30px;background:#f3f3f3;padding:0 4px;line-height:28px;color:#999;}
+.index_product_list li.list_address{width:174px;float:left;padding:0 4px;line-height:32px;color:#999;}
+
+
+
+.none_right_line{border-right:none;padding:0 0 0 11px;}
+/*focus picture*/
+#focusPic{width:600px; height:288px;position:relative;overflow:hidden;}
+#focusSlider{position:absolute;width:2000px;}
+#focusPic li{ list-style:none;display:inline;float:left;width:600px;}
+#focusPic li img{display:block;border:0;}
+#focusMenu{height:38px;position:absolute;bottom:0;}
+#focusMenu li{font:normal 14px '微软雅黑','宋体';text-align:center;width:200px;background-color:#333;height:38px;color:#fff;line-height:38px;opacity:0.8;filter:alpha(opacity=80);}
+#focusMenu li.on{background-color:#000;}
+#focusMenu li#focus_border{border-right:1px solid #858484;border-left:1px solid #858484;width:198px;}
+#focusMenu a{color:#fff; text-decoration:none}
+#focusMenu a:hover{ text-decoration:underline}
+
+
+
+
+
+
+
+

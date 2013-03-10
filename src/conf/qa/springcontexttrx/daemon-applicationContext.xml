@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"         ":/spring-beans.dtd">
+<beans>
+	<!--
+		<bean id="propertyPlaceholder"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location"
+		value="classpath:springContext/systemCfg.properties" /> </bean> <bean
+		id="voucherAutoCreateDaemonService"
+		class="com.beike.biz.service.trx.daemon.VoucherAutoCreateDaemonService">
+
+		<property name="voucherService"> <ref bean="voucherService"/>
+		</property> </bean>
+	-->
+
+
+	<!-- 凭证定时生成 -->
+	<bean id="voucherAutoCreateTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean
+				class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject">
+					<ref bean="voucherAutoCreateDaemon" />
+				</property>
+				<property name="targetMethod">
+					<value>generateVoucher</value>
+				</property>
+				<property name="concurrent">
+					<value>false</value>
+				</property>
+			</bean>
+		</property>
+		<property name="cronExpression">
+			<value>0 0 0 3 * ?</value>
+		</property>
+	</bean>
+
+
+	<!-- 过期订单自动退款 -->
+	<bean id="refundAutoDaemonTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean
+				class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject">
+					<ref bean="refundAutoDaemon" />
+				</property>
+				<property name="targetMethod">
+					<value>executeAutoRefund</value>
+				</property>
+				<property name="concurrent">
+					<value>false</value>
+				</property>
+			</bean>
+		</property>
+		<property name="cronExpression">
+			<value>0 0/57 * * * ?</value>
+		</property>
+	</bean>
+	
+	
+		<!-- 过期订单自动过期 -->
+	<bean id="expiredAutoDaemonTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean
+				class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject">
+					<ref bean="expiredAutoDaemon" />
+				</property>
+				<property name="targetMethod">
+					<value>executeAutoExpired</value>
+				</property>
+				<property name="concurrent">
+					<value>false</value>
+				</property>
+			</bean>
+		</property>
+		<property name="cronExpression">
+			<value>0 0/51 * * * ?</value>
+		</property>
+	</bean>
+<!-- 定时发送短信 -->
+	<bean id="smsSendAutoDaemonTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean
+				class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject">
+					<ref bean="smsSendAutoDaemon" />
+				</property>
+				<property name="targetMethod">
+					<value>executeAutoSendSms</value>
+				</property>
+				<property name="concurrent">
+					<value>false</value>
+				</property>
+			</bean>
+		</property>
+		<property name="cronExpression">
+			<value>0/30 * * * * ?</value>
+		</property>
+	</bean>
+	
+	
+	<!-- 定时对过期子账户做取消操作 -->
+	<bean id="vmCancelRecordDaemonTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean
+				class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject">
+					<ref bean="vmCancelRecordDaemon" />
+				</property>
+				<property name="targetMethod">
+					<value>executeVmCancer</value>
+				</property>
+				<property name="concurrent">
+					<value>false</value>
+				</property>
+			</bean>
+		</property>
+		<property name="cronExpression">
+			<value>* 0/15 * * * ?</value>
+		</property>
+	</bean>
+		<!--补发返现金额 -->
+	<bean id="reRebateTriger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean
+				class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject">
+					<ref bean="reRebateDaemon" />
+				</property>
+				<property name="targetMethod">
+					<value>executeReturnCancer</value>
+				</property>
+				<property name="concurrent">
+					<value>false</value>
+				</property>
+			</bean>
+		</property>
+		<property name="cronExpression">
+			<value>0 30 2 * * ?</value>
+		</property>
+	</bean>
+	
+		<!--余额过期:数据准备定时 -->
+	<bean id="accountNotifyPrepareTriger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean
+				class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject">
+					<ref bean="accountNotifyDaemon" />
+				</property>
+				<property name="targetMethod">
+					<value>executeNotifyPrepare</value>
+				</property>
+				<property name="concurrent">
+					<value>false</value>
+				</property>
+			</bean>
+		</property>
+		<property name="cronExpression">
+			<value>0 0 3 * * ?</value><!-- 生产 -->
+		</property>
+	</bean>
+	
+		<!--余额过期:短信通知定时 -->
+	<bean id="accountNotifyTriger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean
+				class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject">
+					<ref bean="accountNotifyDaemon" />
+				</property>
+				<property name="targetMethod">
+					<value>executeNotify</value>
+				</property>
+				<property name="concurrent">
+					<value>false</value>
+				</property>
+			</bean>
+		</property>
+		<property name="cronExpression">
+			<value>0 0/10 * * * ?</value><!-- 生产 -->
+		</property>
+	</bean>
+	
+	
+	<!--订单过期:数据准备定时 -->
+	<bean id="trxORderNotifyPrepareTriger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean
+				class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject">
+					<ref bean="trxOrderNotifyDaemon" />
+				</property>
+				<property name="targetMethod">
+					<value>executeTrxOrderNotifyPrepare</value>
+				</property>
+				<property name="concurrent">
+					<value>false</value>
+				</property>
+			</bean>
+		</property>
+		<property name="cronExpression">
+			<value>0 0 3 * * ?</value><!-- 生产 -->
+			<!-- <value>0 0 3 * * ?</value> 本地测试-->
+		</property>
+	</bean>
+	
+	
+		<!--订单过期:短信通知定时 -->
+	<bean id="trxORderNotifyTriger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean
+				class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject">
+					<ref bean="trxOrderNotifyDaemon" />
+				</property>
+				<property name="targetMethod">
+					<value>executeDataNotify</value>
+				</property>
+				<property name="concurrent">
+					<value>false</value>
+				</property>
+			</bean>
+		</property>
+		<property name="cronExpression">
+			<value>0 0/8 * * * ?</value><!-- 生产 -->
+				<!-- <value>0 0 9 * * ?</value> 本地测试-->
+		</property>
+	</bean>
+		<!-- 自动发送通知 -->
+	<bean id="noticeSendDaemonTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean
+				class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject">
+					<ref bean="noticeSendDaemon" />
+				</property>
+				<property name="targetMethod">
+					<value>excuteNoticeSend</value>
+				</property>
+				<property name="concurrent">
+					<value>false</value>
+				</property>
+			</bean>
+		</property>
+		<property name="cronExpression">
+			<value>0/50 * * * * ?</value>
+		</property>
+	</bean>
+	
+	<!-- 线下优惠券超时自动处理任务 -->
+	<bean id="expireDiscountCouponDaemonTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean
+				class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject">
+					<ref bean="expireDiscountCouponDaemon" />
+				</property>
+				<property name="targetMethod">
+					<value>noTscExecute</value>
+				</property>
+				<property name="concurrent">
+					<value>false</value>
+				</property>
+			</bean>
+		</property>
+		<property name="cronExpression">
+			<value>0 0 1 * * ?</value>
+			<!-- 每晚1点 -->
+		</property>
+	</bean>
+	
+	<!-- 商品分类数量计算 -->
+	<bean id="goodsCountDaemonTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean
+				class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject">
+					<ref bean="goodsCountDaemon" />
+				</property>
+				<property name="targetMethod">
+					<value>calculateGoodsCount</value>
+				</property>
+				<property name="concurrent">
+					<value>false</value>
+				</property>
+			</bean>
+		</property>
+		<property name="cronExpression">
+			<value>0 0/30 * * * ?</value>
+		</property>
+	</bean>
+	<!-- 秒杀预订通知短信 -->
+	<bean id="miaoshaRemindDaemonTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean
+				class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject">
+					<ref bean="miaoshaRemindSendDaemon" />
+				</property>
+				<property name="targetMethod">
+					<value>sendRemindSms</value>
+				</property>
+				<property name="concurrent">
+					<value>false</value>
+				</property>
+			</bean>
+		</property>
+		<property name="cronExpression">
+			<value>0 0/10 8-22 * * ?</value>
+			<!-- 早8点到晚10点每10分钟 -->
+		</property>
+	</bean>
+	<!-- 超期退款，自动退款。邮件发送 -->
+	<bean id="refundTimeOutAutoDaemon" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean
+				class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject">
+					<ref bean="refundAutoDaemon" />
+				</property>
+				<property name="targetMethod">
+					<value>executeRefundTimeout</value>
+				</property>
+				<property name="concurrent">
+					<value>false</value>
+				</property>
+			</bean>
+		</property>
+		<property name="cronExpression">
+			<value>0 30 3 * * ?</value><!-- 每天凌晨3点30 -->
+		</property>
+	</bean>
+	
+	<!-- 优惠券异步入账定时 -->
+	<bean id="creditActAsynForCouponDaemonTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean
+				class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject">
+					<ref bean="creditActAsynForCouponDaemon" />
+				</property>
+				<property name="targetMethod">
+					<value>executeCreditActAsyn</value>
+				</property>
+				<property name="concurrent">
+					<value>false</value>
+				</property>
+			</bean>
+		</property>
+		<property name="cronExpression">
+			<!-- 每天凌晨00:30-->
+			<value>0 30 0 * * ?</value>
+		</property>
+	</bean>
+		<!-- 新商家结算异步出账 -->
+	<bean id="creditGuestTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean
+				class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject">
+					<ref bean="guestCreditDaemon" />
+				</property>
+				<property name="targetMethod">
+					<value>executeGuestCredit</value>
+				</property>
+				<property name="concurrent">
+					<value>false</value>
+				</property>
+			</bean>
+		</property>
+		<property name="cronExpression">
+			<!-- 每天凌晨01:30-->
+			<value>0 0/53 * * * ?</value>
+		</property>
+	</bean>
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+
+		<property name="triggers">
+			<list>
+				<!--<ref bean="voucherAutoCreateTrigger" /> 凭证生成 -->
+				<!--<ref bean="refundAutoDaemonTrigger" /> 自动退款 -->
+			    <!--<ref bean="expiredAutoDaemonTrigger"/> 自动过期 -->
+			    <!--<ref bean="smsSendAutoDaemonTrigger"/> 定时发送短信 -->
+			    <!--<ref bean="vmCancelRecordDaemonTrigger"/> 定时对过期子账户做取消操作 -->
+			    <!-- <ref bean="reRebateTriger"/>补发返现金额 -->
+			    <!--<ref bean="accountNotifyPrepareTriger"/>余额过期:数据准备定时 -->
+			    <!--<ref bean="accountNotifyTriger"/>余额过期:短信通知定时 -->
+			    <!--<ref bean="trxORderNotifyPrepareTriger"/>订单过期:数据准备定时 -->
+			    <!--<ref bean="trxORderNotifyTriger"/>订单过期:短信通知定时 -->
+			    <!--<ref bean="noticeSendDaemonTrigger"/>交易对外补单及通知-->
+			    <!--<ref bean="expireDiscountCouponDaemonTrigger"/> 线下优惠券超时自动处理任务-->
+			    <!--<ref bean="goodsCountDaemonTrigger"/>商品分类数量计算 -->
+			    <!--<ref bean="miaoshaRemindDaemonTrigger"/>秒杀预订通知短信 -->
+			    <!-- <ref bean="refundTimeOutAutoDaemon" />超期退款自动退款，发送邮件 -->
+			    <!-- <ref bean="creditActAsynForCouponDaemonTrigger" />优惠券异步入账 -->
+			    <ref bean="creditGuestTrigger" /><!--新商家结算异步入账 -->
+			</list>
+		</property>
+	</bean>
+</beans>
+

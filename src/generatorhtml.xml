@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<generator>
+	
+	<datas name="beijing_index" city="beijing" page="index">
+		<page name="topsearchlink"  file="/jsp/background_templates/beijing/include/top_hotsearch.html" type="textlink" templates="/jsp/background_templates/beijing/include/top_hotsearch_template.html"></page>
+		<page name="topimglink"   file="/jsp/background_templates/beijing/include/main_scroll.html" type="imglink" templates="/jsp/background_templates/beijing/include/main_scroll_template.html"/>
+		<page name="toptextlink1"  file="" type="textlink" templates=""></page>
+		<page name="toptextlink2"  file="" type="textlink" templates=""></page>
+		<page name="toplist"  type="topgoodslist" file="/jsp/background_templates/beijing/include/index_toplist.html"></page>				
+	</datas>
+</generator>
